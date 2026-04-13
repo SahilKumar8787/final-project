@@ -10,10 +10,18 @@ const app = express();
 connectDB();
 
 // Middleware
+const allowedOrigins = [
+  process.env.CORS_ORIGIN,          // e.g. https://localseva-frontend.onrender.com
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow any localhost port (5173, 5174, 3000, etc.) and no-origin requests (Postman)
-    if (!origin || origin.startsWith("http://localhost")) {
+    // Allow no-origin requests (Postman / server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.some((o) => origin.startsWith(o))) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
